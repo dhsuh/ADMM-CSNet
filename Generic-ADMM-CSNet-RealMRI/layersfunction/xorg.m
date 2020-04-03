@@ -4,6 +4,7 @@ load('mask.mat')
 Ni1 = logical( ifftshift(mask) );
 config;
 gg = nnconfig.EnableGPU;
+gg = 0;
 if gg
  Ni1 = gpuArray(Ni1);   
 end

@@ -3,7 +3,7 @@ function [ O, DzDw ] = nonlinear ( LL, I, r , DzDy )
 
 config;
 gg = nnconfig.EnableGPU;
-
+gg = 0;
 
 if nargin == 3   
     

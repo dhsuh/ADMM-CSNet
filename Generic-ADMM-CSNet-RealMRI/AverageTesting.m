@@ -12,14 +12,14 @@ loss=0;
 psnr=0;
 config;
 gp = nnconfig.EnableGPU;
-
+gp =0;
 TN = 50;
 
 %------------------loading net and data--------------------------------
 load('./net/NET-Pseudo-radial-0.2-real-S11.mat');
 load('./mask/Pseudo-radial-0.2.mat');
 save('mask.mat', 'mask');
-data_dir = './data/DATA-Pseudo-radial-0.2-real-brain/test/';
+data_dir = '~/Documents/GT/coderesearch/ADMM-CSNet-data/Generic-ADMM-CSNet-RealMRI/data/DATA-Pseudo-radial-0.2-real-brain/test/';
 
 
 
