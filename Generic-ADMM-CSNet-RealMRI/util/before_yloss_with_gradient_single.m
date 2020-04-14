@@ -5,10 +5,10 @@ LL = nnconfig.LinearLabel;
 
 Modee = nnconfig.Modee;
 gp = nnconfig.EnableGPU;
-gp = 0;
+%gp = 0;
 
-relax = 0;
-adapt = 0; 
+relax = 1;
+adapt = 1; 
 N = numel(net.layers);
 res = struct(...
             'x',cell(1,N+1),...
@@ -28,15 +28,15 @@ gmh     = 1.9;
 gmg     = 1.1;
 verbose = 0;
 
-for j = 1:N
-    l = net.layers{j};
-    switch l.type
-        case {'Reorg','Remid','Refinal'}
-             fprintf('\n%s  %f\n', l.type, l.weights{1});
-        otherwise     
-                fprintf('%s\n', l.type);
-    end
-end
+%for j = 1:N
+%    l = net.layers{j};
+%    switch l.type
+%        case {'Reorg','Remid','Refinal'}
+%             fprintf('\n%s  %f\n', l.type, l.weights{1});
+%        otherwise     
+%                fprintf('%s\n', l.type);
+%    end
+%end
 % The forward propagation
 for i = 1 : N
     l = net.layers{i};
@@ -57,7 +57,7 @@ for i = 1 : N
 	    end
 	    if relax
               xold       = res(i+1).x;
-  	      res(i+1).x = gamma*res(i+1); %(1-gamma)*z_0, but z_0 is zero. (other option is to init zero, but its complex matrix, so maybe not
+  	      res(i+1).x = gamma*res(i+1).x; %(1-gamma)*z_0, but z_0 is zero. (other option is to init zero, but its complex matrix, so maybe not
 	    end
        case 'MIN'
             res(i+1).x = Minus(res(i-3).x , res(i).x) ; 
@@ -71,7 +71,7 @@ for i = 1 : N
             end
             % TODO multiply res(i-4) by mu2, add mu1*zold
             if adapt && relax
-              yold  = res(i+1).x;
+              y0  = res(i+1).x;
 	      yhat0 = tau*(xold);% y0 = null,z0 = null, b=null
 	      zold  = res(i).x;
 	      xold0 = xold;
@@ -87,8 +87,8 @@ for i = 1 : N
             % ADAPT AND RELAX UPDATE
 	    if adapt && relax && mod(iter,freq)==0
 	      yhat = res(i+1).x + tau*(xold-res(i).x);
-	      [tau,gamma] = aradmm_estimate(iter,tau,gamma,xold,xold0,yhat,yhat0,res(i).x,zold,orthval,verbose, minval, gmh, gmg, gamma0); 
-	      yold  = res(i+1).x;
+	      [tau,gamma] = aradmm_estimate(iter,tau,gamma,xold,xold0,yhat,yhat0,res(i).x,zold,res(i+1).x,y0,orthval,verbose, minval, gmh, gmg, gamma0); 
+	      y0  = res(i+1).x;
 	      yhat0 = yhat;
 	      zold  = res(i).x;
 	      xold0 = xold;
@@ -104,7 +104,7 @@ for i = 1 : N
 	    if adapt && relax && mod(iter,freq)==0
 	      yhat = res(i+1).x + tau*(xold-res(i).x);
 	      [tau,gamma] = aradmm_estimate(iter,tau,gamma,xold,xold0,yhat,yhat0,res(i).x,zold,orthval,verbose, minval, gmh, gmg, gamma0); 
-	      yold  = res(i+1).x;
+	      y0  = res(i+1).x;
 	      yhat0 = yhat;
 	      zold  = res(i).x;
 	      xold0 = xold;
